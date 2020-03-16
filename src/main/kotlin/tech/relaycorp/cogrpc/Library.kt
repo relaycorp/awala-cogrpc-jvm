@@ -1,4 +1,4 @@
-package tech.relaycorp.relaynet-cogrpc
+package tech.relaycorp.cogrpc
 
 class Library {
     fun someLibraryMethod(): Boolean {

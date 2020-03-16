@@ -1,4 +1,4 @@
-package tech.relaycorp.relaynet-cogrpc
+package tech.relaycorp.cogrpc
 
 import kotlin.test.Test
 import kotlin.test.assertTrue
