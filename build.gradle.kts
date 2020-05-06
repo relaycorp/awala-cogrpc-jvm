@@ -36,7 +36,7 @@ dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("tech.relaycorp:relaynet:1.12.3")
+    implementation("tech.relaycorp:relaynet:1.12.4")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
