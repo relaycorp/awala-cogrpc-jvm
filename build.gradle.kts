@@ -150,11 +150,15 @@ publishing {
 }
 
 spotless {
+    val ktlintUserData = mapOf(
+            "max_line_length" to "100",
+            "disabled_rules" to "import-ordering"
+    )
+
     kotlin {
-        // optionally takes a version
-        ktlint()
+        ktlint("0.36.0").userData(ktlintUserData)
     }
     kotlinGradle {
-        ktlint()
+        ktlint().userData(ktlintUserData)
     }
 }
