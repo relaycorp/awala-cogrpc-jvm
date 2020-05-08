@@ -131,7 +131,9 @@ publishing {
                 }
                 scm {
                     connection.set("scm:git:https://github.com/relaycorp/relaynet-cogrpc-jvm.git")
-                    developerConnection.set("scm:git:https://github.com/relaycorp/relaynet-cogrpc-jvm.git")
+                    developerConnection.set(
+                            "scm:git:https://github.com/relaycorp/relaynet-cogrpc-jvm.git"
+                    )
                     url.set("https://github.com/relaycorp/relaynet-cogrpc-jvm")
                 }
             }
@@ -140,7 +142,9 @@ publishing {
     repositories {
         maven {
             // publish=1 automatically publishes the version
-            url = uri("https://api.bintray.com/maven/relaycorp/maven/tech.relaycorp.cogrpc/;publish=1")
+            url = uri(
+                    "https://api.bintray.com/maven/relaycorp/maven/tech.relaycorp.cogrpc/;publish=1"
+            )
             credentials {
                 username = System.getenv("BINTRAY_USERNAME")
                 password = System.getenv("BINTRAY_KEY")
