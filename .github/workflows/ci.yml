@@ -22,6 +22,11 @@ jobs:
       - uses: eskatos/gradle-command-action@v1
         with:
           arguments: jacocoTestCoverageVerification
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: reports
+          path: build/reports/
 
   release:
     needs: ci
