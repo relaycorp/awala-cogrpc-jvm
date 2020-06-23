@@ -1,8 +1,23 @@
-# Ignore Gradle project-specific cache directory
+# Gradle files
 .gradle
-
-# Ignore Gradle build output directory
 build
+gradlew.bat
+reports
 
 # Ignore `semantic-release` dependencies
 node_modules/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# IntelliJ
+*.iml
+*.ipl
+*.iws
+.idea
+classes/
+idea-classes/
+coverage-error.log
+
+# Finder
+.DS_Store
