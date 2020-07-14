@@ -6,6 +6,7 @@ reports
 
 # Ignore `semantic-release` dependencies
 node_modules/
+package-lock.json
 
 # Local configuration file (sdk path, etc)
 local.properties
