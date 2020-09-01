@@ -7,6 +7,7 @@ buildscript{
     grpcVersion = '1.31.1'
     protobufVersion = '3.13.0'
     protobufGradleVersion = '0.8.12'
+    nettyVersion = '4.1.51.Final'
   }
 }
 
@@ -49,6 +50,10 @@ dependencies {
   implementation "io.grpc:grpc-netty:$grpcVersion"
   implementation "io.grpc:grpc-protobuf:$grpcVersion"
   implementation "io.grpc:grpc-stub:$grpcVersion"
+
+  // Some netty dependencies so we can write our custom NettyChannelBuilder
+  implementation "io.netty:netty-handler:$nettyVersion"
+  implementation "io.netty:netty-handler-proxy:$nettyVersion"
 
   // Get Bouncy Castle just so we can do Base64 encoding. This is a massive overkill, but we can't
   // use java.util.Base64 on Android's API 21 and we can't use Apache Commons Codec because it'd

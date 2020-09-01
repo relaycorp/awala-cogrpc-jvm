@@ -1,11 +1,9 @@
 package tech.relaycorp.relaynet.cogrpc.client
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import io.grpc.ManagedChannel
-import io.grpc.netty.NettyChannelBuilder
+import io.grpc.netty.AndroidNettyChannelBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -15,12 +13,13 @@ import java.net.InetSocketAddress
 import java.net.MalformedURLException
 
 class CogRPCClientBuildTest {
-    private lateinit var spiedChannelBuilder: NettyChannelBuilder
-    private lateinit var spiedChannelBuilderProvider: (InetSocketAddress) -> NettyChannelBuilder
+    private lateinit var spiedChannelBuilder: AndroidNettyChannelBuilder
+    private lateinit var spiedChannelBuilderProvider:
+        (InetSocketAddress) -> AndroidNettyChannelBuilder
 
     @BeforeEach
     internal fun setUp() {
-        spiedChannelBuilder = spy(NettyChannelBuilder.forAddress(InetSocketAddress(80)))
+        spiedChannelBuilder = spy(AndroidNettyChannelBuilder.forAddress(InetSocketAddress(80)))
         spiedChannelBuilderProvider = { spiedChannelBuilder }
     }
 
@@ -69,7 +68,7 @@ class CogRPCClientBuildTest {
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
-        verify(spiedChannelBuilder, never()).usePlaintext()
+        verify(spiedChannelBuilder).useTls(true)
     }
 
     @Test
@@ -79,8 +78,7 @@ class CogRPCClientBuildTest {
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
-        verify(spiedChannelBuilder).useTransportSecurity()
-        verify(spiedChannelBuilder, never()).usePlaintext()
+        verify(spiedChannelBuilder).useTls(true)
     }
 
     @Test
@@ -90,8 +88,8 @@ class CogRPCClientBuildTest {
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
-        verify(spiedChannelBuilder, never()).usePlaintext()
-        verify(spiedChannelBuilder, never()).sslContext(any())
+        verify(spiedChannelBuilder).useTls(true)
+        verify(spiedChannelBuilder).trustAllCertificates(false)
     }
 
     @Test
@@ -101,8 +99,8 @@ class CogRPCClientBuildTest {
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
-        verify(spiedChannelBuilder, never()).usePlaintext()
-        verify(spiedChannelBuilder).sslContext(spiedClient.insecureTlsContext)
+        verify(spiedChannelBuilder).useTls(true)
+        verify(spiedChannelBuilder).trustAllCertificates(true)
     }
 
     @Test
@@ -112,7 +110,7 @@ class CogRPCClientBuildTest {
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
-        verify(spiedChannelBuilder).usePlaintext()
-        verify(spiedChannelBuilder, never()).sslContext(any())
+        verify(spiedChannelBuilder).useTls(false)
+        verify(spiedChannelBuilder).trustAllCertificates(false)
     }
 }

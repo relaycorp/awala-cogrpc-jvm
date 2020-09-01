@@ -2,11 +2,9 @@ package tech.relaycorp.relaynet.cogrpc.client
 
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.grpc.netty.GrpcSslContexts
-import io.grpc.netty.NettyChannelBuilder
+import io.grpc.netty.AndroidNettyChannelBuilder
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +35,8 @@ open class CogRPCClient
 internal constructor(
     serverAddress: String,
     val requireTls: Boolean = true,
-    val channelBuilderProvider: (InetSocketAddress) -> NettyChannelBuilder =
-        { NettyChannelBuilder.forAddress(it) }
+    private val channelBuilderProvider: (InetSocketAddress) -> AndroidNettyChannelBuilder =
+        { AndroidNettyChannelBuilder.forAddress(it) }
 ) {
     private val serverUrl = URL(serverAddress)
 
@@ -61,14 +59,8 @@ internal constructor(
         val isHostPrivateAddress = InetAddress.getByName(serverUrl.host).isSiteLocalAddress
         channelBuilderProvider
             .invoke(address)
-            .run { if (useTls) useTransportSecurity() else usePlaintext() }
-            .let { if (useTls && isHostPrivateAddress) it.sslContext(insecureTlsContext) else it }
-            .build()
-    }
-
-    internal val insecureTlsContext by lazy {
-        GrpcSslContexts.forClient()
-            .trustManager(InsecureTrustManagerFactory.INSTANCE)
+            .useTls(useTls)
+            .trustAllCertificates(useTls && isHostPrivateAddress)
             .build()
     }
 
