@@ -9,7 +9,8 @@ def jacocoFiles = files([
       "classes/kotlin/main/**"
     ],
     excludes: [
-      '**/*Stub*.*'
+      '**/*Stub*.*',
+      '**/io/grpc/netty/**'
     ]
   )
 ])
