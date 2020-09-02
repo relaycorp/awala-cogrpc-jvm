@@ -33,8 +33,12 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import javax.net.ssl.SSLSession
 
-internal class AndroidClientTlsHandler(next: ChannelHandler?, sslContext: SslContext, authority: String?,
-                                       executor: Executor?) : ProtocolNegotiators.ProtocolNegotiationHandler(next) {
+internal class AndroidClientTlsHandler(
+    next: ChannelHandler?,
+    sslContext: SslContext,
+    authority: String?,
+    executor: Executor?
+) : ProtocolNegotiators.ProtocolNegotiationHandler(next) {
     private val sslContext: SslContext
     private val host: String
     private val port: Int
@@ -48,7 +52,13 @@ internal class AndroidClientTlsHandler(next: ChannelHandler?, sslContext: SslCon
             logger.info("SSLParameters#setEndpointIdentificationAlgorithm not supported")
         }
         sslEngine.sslParameters = sslParams
-        ctx.pipeline().addBefore(ctx.name(),  /* name= */null, if (executor != null) SslHandler(sslEngine, false, executor) else SslHandler(sslEngine, false))
+        ctx.pipeline().addBefore(
+            ctx.name(),
+            /* name= */null,
+            if (executor != null)
+                SslHandler(sslEngine, false, executor)
+            else
+                SslHandler(sslEngine, false))
     }
 
     @Throws(Exception::class)
@@ -60,11 +70,23 @@ internal class AndroidClientTlsHandler(next: ChannelHandler?, sslContext: SslCon
                 if (sslContext.applicationProtocolNegotiator().protocols()
                         .contains(handler.applicationProtocol())) {
                     // Successfully negotiated the protocol.
-                    ProtocolNegotiators.logSslEngineDetails(Level.FINER, ctx, "TLS negotiation succeeded.", null)
+                    ProtocolNegotiators.logSslEngineDetails(
+                        Level.FINER,
+                        ctx,
+                        "TLS negotiation succeeded.",
+                        null
+                    )
                     propagateTlsComplete(ctx, handler.engine().session)
                 } else {
-                    val ex: Exception = unavailableException("Failed ALPN negotiation: Unable to find compatible protocol")
-                    ProtocolNegotiators.logSslEngineDetails(Level.FINE, ctx, "TLS negotiation failed.", ex)
+                    val ex: Exception = unavailableException(
+                        "Failed ALPN negotiation: Unable to find compatible protocol"
+                    )
+                    ProtocolNegotiators.logSslEngineDetails(
+                        Level.FINE,
+                        ctx,
+                        "TLS negotiation failed.",
+                        ex
+                    )
                     ctx.fireExceptionCaught(ex)
                 }
             } else {
