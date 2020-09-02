@@ -95,14 +95,15 @@ class CogRPCClientBuildTest {
     }
 
     @Test
-    internal fun `TLS server certificate should not be validated if host is private IP`() {
+    fun `TLS server certificate should not be validated if host is private IP`() {
+        val hostName = "192.168.43.1"
         val spiedClient = spy(
-            CogRPCClient("https://192.168.43.1", true, spiedChannelBuilderProvider)
+            CogRPCClient("https://$hostName", true, spiedChannelBuilderProvider)
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
         verify(spiedChannelBuilder, never()).usePlaintext()
-        verify(spiedChannelBuilder).sslSocketFactory(spiedClient.insecureSocketFactory)
+        verify(spiedChannelBuilder).overrideAuthority("$hostName:443")
     }
 
     @Test

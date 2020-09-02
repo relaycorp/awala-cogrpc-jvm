@@ -5,7 +5,6 @@ import io.grpc.StatusRuntimeException
 import io.grpc.okhttp.OkHttpChannelBuilder
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +29,6 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
-import javax.net.ssl.SSLContext
 import kotlin.time.seconds
 
 open class CogRPCClient
@@ -64,23 +62,11 @@ internal constructor(
             .run { if (useTls) useTransportSecurity() else usePlaintext() }
             .let {
                 if (useTls && isHostPrivateAddress)
-                    it.sslSocketFactory(insecureSocketFactory)
+                    it.overrideAuthority("${address.hostName}:${address.port}")
                 else
                     it
             }
             .build()
-    }
-
-    internal val insecureSocketFactory by lazy {
-        val sslContext = SSLContext.getInstance("TLS")
-        // TODO: Remove dependency on Netty
-        val insecureTrustManager = InsecureTrustManagerFactory.INSTANCE.trustManagers.first()
-        sslContext.init(
-            null, // TODO: Double check
-            arrayOf(insecureTrustManager),
-            null // TODO: Double check
-        )
-        sslContext.socketFactory
     }
 
     fun deliverCargo(cargoes: Iterable<CargoDeliveryRequest>): Flow<String> {
