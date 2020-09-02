@@ -2,8 +2,7 @@ package tech.relaycorp.relaynet.cogrpc.client
 
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.grpc.netty.GrpcSslContexts
-import io.grpc.netty.NettyChannelBuilder
+import io.grpc.okhttp.OkHttpChannelBuilder
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
@@ -31,14 +30,15 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
+import javax.net.ssl.SSLContext
 import kotlin.time.seconds
 
 open class CogRPCClient
 internal constructor(
     serverAddress: String,
     val requireTls: Boolean = true,
-    val channelBuilderProvider: (InetSocketAddress) -> NettyChannelBuilder =
-        { NettyChannelBuilder.forAddress(it) }
+    val channelBuilderProvider: (InetSocketAddress) -> OkHttpChannelBuilder =
+        { OkHttpChannelBuilder.forAddress(it.hostName, it.port) }
 ) {
     private val serverUrl = URL(serverAddress)
 
@@ -62,14 +62,25 @@ internal constructor(
         channelBuilderProvider
             .invoke(address)
             .run { if (useTls) useTransportSecurity() else usePlaintext() }
-            .let { if (useTls && isHostPrivateAddress) it.sslContext(insecureTlsContext) else it }
+            .let {
+                if (useTls && isHostPrivateAddress)
+                    it.sslSocketFactory(insecureSocketFactory)
+                else
+                    it
+            }
             .build()
     }
 
-    internal val insecureTlsContext by lazy {
-        GrpcSslContexts.forClient()
-            .trustManager(InsecureTrustManagerFactory.INSTANCE)
-            .build()
+    internal val insecureSocketFactory by lazy {
+        val sslContext = SSLContext.getInstance("TLS")
+        // TODO: Remove dependency on Netty
+        val insecureTrustManager = InsecureTrustManagerFactory.INSTANCE.trustManagers.first()
+        sslContext.init(
+            null, // TODO: Double check
+            arrayOf(insecureTrustManager),
+            null // TODO: Double check
+        )
+        sslContext.socketFactory
     }
 
     fun deliverCargo(cargoes: Iterable<CargoDeliveryRequest>): Flow<String> {

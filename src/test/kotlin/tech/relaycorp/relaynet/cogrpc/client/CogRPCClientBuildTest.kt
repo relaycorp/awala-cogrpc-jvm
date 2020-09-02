@@ -5,7 +5,7 @@ import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.verify
 import io.grpc.ManagedChannel
-import io.grpc.netty.NettyChannelBuilder
+import io.grpc.okhttp.OkHttpChannelBuilder
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -15,12 +15,12 @@ import java.net.InetSocketAddress
 import java.net.MalformedURLException
 
 class CogRPCClientBuildTest {
-    private lateinit var spiedChannelBuilder: NettyChannelBuilder
-    private lateinit var spiedChannelBuilderProvider: (InetSocketAddress) -> NettyChannelBuilder
+    private lateinit var spiedChannelBuilder: OkHttpChannelBuilder
+    private lateinit var spiedChannelBuilderProvider: (InetSocketAddress) -> OkHttpChannelBuilder
 
     @BeforeEach
     internal fun setUp() {
-        spiedChannelBuilder = spy(NettyChannelBuilder.forAddress(InetSocketAddress(80)))
+        spiedChannelBuilder = spy(OkHttpChannelBuilder.forAddress("127.0.0.1", 80))
         spiedChannelBuilderProvider = { spiedChannelBuilder }
     }
 
@@ -91,7 +91,7 @@ class CogRPCClientBuildTest {
 
         assertTrue(spiedClient.channel is ManagedChannel)
         verify(spiedChannelBuilder, never()).usePlaintext()
-        verify(spiedChannelBuilder, never()).sslContext(any())
+        verify(spiedChannelBuilder, never()).sslSocketFactory(any())
     }
 
     @Test
@@ -102,7 +102,7 @@ class CogRPCClientBuildTest {
 
         assertTrue(spiedClient.channel is ManagedChannel)
         verify(spiedChannelBuilder, never()).usePlaintext()
-        verify(spiedChannelBuilder).sslContext(spiedClient.insecureTlsContext)
+        verify(spiedChannelBuilder).sslSocketFactory(spiedClient.insecureSocketFactory)
     }
 
     @Test
@@ -113,6 +113,6 @@ class CogRPCClientBuildTest {
 
         assertTrue(spiedClient.channel is ManagedChannel)
         verify(spiedChannelBuilder).usePlaintext()
-        verify(spiedChannelBuilder, never()).sslContext(any())
+        verify(spiedChannelBuilder, never()).sslSocketFactory(any())
     }
 }
