@@ -52,6 +52,5 @@ class PrivateSubnetTrustManager private constructor() : X509ExtendedTrustManager
         val INSTANCE = PrivateSubnetTrustManager()
         private val clientValidationNotImplementedError =
             NotImplementedError("Client-side certificate validation is unsupported")
-
     }
 }
