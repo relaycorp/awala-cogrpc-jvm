@@ -48,7 +48,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
             val cargo = buildRequest()
 
             // Server acks and completes instantaneously
@@ -79,7 +79,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
             val acks = client.deliverCargo(emptyList()).toList()
 
             assertTrue(acks.isEmpty())
@@ -93,7 +93,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
             val cargo = buildRequest()
 
             // Server never acks, just completes
@@ -116,7 +116,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
             val cargo = buildRequest()
 
             // Server acks and completes instantaneously
@@ -149,7 +149,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
             val ackRecorder = StreamRecorder.create<CargoDeliveryAck>()
             mockServerService.collectCargoReturned = ackRecorder
 
@@ -185,7 +185,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
             val ackRecorder = StreamRecorder.create<CargoDeliveryAck>()
             mockServerService.collectCargoReturned = ackRecorder
 
@@ -227,7 +227,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()
@@ -255,7 +255,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()
@@ -283,7 +283,7 @@ internal class CogRPCClientTest {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()

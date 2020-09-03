@@ -30,7 +30,8 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.time.seconds
 
-open class CogRPCClient(
+open class CogRPCClient
+internal constructor(
     serverAddress: String,
     val channelBuilderProvider: ChannelBuilderProvider<*>,
     val requireTls: Boolean = true
@@ -162,6 +163,14 @@ open class CogRPCClient(
         Exception(message, throwable)
 
     class CCARefusedException : CogRPCException()
+
+    object Builder {
+        fun build(
+            serverAddress: String,
+            channelBuilderProvider: ChannelBuilderProvider<*>,
+            requireTls: Boolean = true
+        ) = CogRPCClient(serverAddress, channelBuilderProvider, requireTls)
+    }
 
     companion object {
         internal val logger = Logger.getLogger(CogRPCClient::class.java.name)

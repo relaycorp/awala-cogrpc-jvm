@@ -29,18 +29,20 @@ class CogRPCClientBuildTest {
 
     @Test
     fun `invalid address throws exception`() {
-        assertThrows<MalformedURLException> { CogRPCClient("invalid", channelBuilderProvider) }
+        assertThrows<MalformedURLException> {
+            CogRPCClient.Builder.build("invalid", channelBuilderProvider)
+        }
     }
 
     @Test
     fun `TLS is required by default`() {
-        val client = CogRPCClient("https://example.org", channelBuilderProvider)
+        val client = CogRPCClient.Builder.build("https://example.org", channelBuilderProvider)
         assertTrue(client.requireTls)
     }
 
     @Test
     fun `HTTPS URL defaults to port 443`() {
-        val client = CogRPCClient("https://example.org", channelBuilderProvider)
+        val client = CogRPCClient.Builder.build("https://example.org", channelBuilderProvider)
 
         assertEquals("example.org:443", client.channel.authority())
     }
@@ -50,7 +52,7 @@ class CogRPCClientBuildTest {
         val serverAddress = "http://example.com"
         val exception =
             assertThrows<CogRPCClient.CogRPCException> {
-                CogRPCClient(serverAddress, channelBuilderProvider)
+                CogRPCClient.Builder.build(serverAddress, channelBuilderProvider)
             }
 
         assertEquals("Cannot connect to $serverAddress with TLS required", exception.message)
@@ -58,7 +60,8 @@ class CogRPCClientBuildTest {
 
     @Test
     fun `HTTP URL defaults to port 80`() {
-        val client = CogRPCClient("http://example.org", channelBuilderProvider, false)
+        val client =
+            CogRPCClient.Builder.build("http://example.org", channelBuilderProvider, false)
 
         assertEquals("example.org:80", client.channel.authority())
     }
@@ -66,7 +69,7 @@ class CogRPCClientBuildTest {
     @Test
     fun `Channel should use TLS if URL is HTTPS`() {
         val spiedClient = spy(
-            CogRPCClient("https://1.1.1.1", channelBuilderProvider, true)
+            CogRPCClient.Builder.build("https://1.1.1.1", channelBuilderProvider, true)
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
@@ -76,7 +79,7 @@ class CogRPCClientBuildTest {
     @Test
     fun `Channel should use TLS if TLS is not required but URL is HTTPS`() {
         val spiedClient = spy(
-            CogRPCClient("https://1.1.1.1", channelBuilderProvider, false)
+            CogRPCClient.Builder.build("https://1.1.1.1", channelBuilderProvider, false)
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
@@ -87,7 +90,7 @@ class CogRPCClientBuildTest {
     @Test
     fun `TLS server certificate should be validated if host is not private IP`() {
         val spiedClient = spy(
-            CogRPCClient("https://1.1.1.1", channelBuilderProvider, true)
+            CogRPCClient.Builder.build("https://1.1.1.1", channelBuilderProvider, true)
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
@@ -99,7 +102,7 @@ class CogRPCClientBuildTest {
     fun `TLS server certificate should not be validated if host is private IP`() {
         val hostName = "192.168.43.1"
         val spiedClient = spy(
-            CogRPCClient("https://$hostName", channelBuilderProvider, true)
+            CogRPCClient.Builder.build("https://$hostName", channelBuilderProvider, true)
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)
@@ -110,7 +113,7 @@ class CogRPCClientBuildTest {
     @Test
     fun `TLS should not be used if URL is HTTP`() {
         val spiedClient = spy(
-            CogRPCClient("http://192.168.43.1", channelBuilderProvider, false)
+            CogRPCClient.Builder.build("http://192.168.43.1", channelBuilderProvider, false)
         )
 
         assertTrue(spiedClient.channel is ManagedChannel)

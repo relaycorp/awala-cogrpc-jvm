@@ -6,7 +6,7 @@ Kotlin JVM library implementing the [Relaynet CogRPC binding](https://specs.rela
 
 To use this library on Android, use the OkHTTP channel integration in [`relaynet-cogrpc-jvm-okhttp`](https://github.com/relaycorp/relaynet-cogrpc-jvm-okhttp).
 
-We don't have a ready-made integration for Netty at this point, but passing the following `ChannelBuilderProvider` to `CogRPCClient()` _should_ work:
+We don't have a ready-made integration for Netty at this point, but passing the following `ChannelBuilderProvider` to `CogRPCClient.Builder.build()` _should_ work:
 
 ```kotlin
 import io.grpc.netty.GrpcSslContexts
