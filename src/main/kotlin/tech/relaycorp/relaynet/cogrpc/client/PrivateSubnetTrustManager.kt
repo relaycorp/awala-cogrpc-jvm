@@ -14,6 +14,7 @@ class PrivateSubnetTrustManager private constructor() : X509TrustManager {
     override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {
         // We don't really care about the validity of the certificate, but we can't leave this
         // method implementation empty because Android would refuse it.
+        chain?.map { it.checkValidity() }
     }
 
     override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
