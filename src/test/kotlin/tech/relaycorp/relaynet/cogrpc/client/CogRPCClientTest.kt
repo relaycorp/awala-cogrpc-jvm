@@ -4,6 +4,7 @@ import io.grpc.BindableService
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.internal.testing.StreamRecorder
+import io.grpc.netty.NettyChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -33,6 +34,9 @@ internal class CogRPCClientTest {
 
     private var testServer: TestCogRPCServer? = null
 
+    private val channelBuilderProvider: ChannelBuilderProvider<NettyChannelBuilder> =
+        { address, _ -> NettyChannelBuilder.forAddress(address) }
+
     @AfterEach
     internal fun tearDown() {
         testServer?.stop()
@@ -40,11 +44,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `deliver cargo and receive ack`() {
+    fun `deliver cargo and receive ack`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
             val cargo = buildRequest()
 
             // Server acks and completes instantaneously
@@ -71,11 +75,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `deliver no cargo`() {
+    fun `deliver no cargo`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
             val acks = client.deliverCargo(emptyList()).toList()
 
             assertTrue(acks.isEmpty())
@@ -85,11 +89,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `deliver cargo without ack`() {
+    fun `deliver cargo without ack`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
             val cargo = buildRequest()
 
             // Server never acks, just completes
@@ -108,11 +112,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `deliver cargo throws exception if deadline is exceeded`() {
+    fun `deliver cargo throws exception if deadline is exceeded`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
             val cargo = buildRequest()
 
             // Server acks and completes instantaneously
@@ -141,11 +145,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `collect cargo, ack and complete`() {
+    fun `collect cargo, ack and complete`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
             val ackRecorder = StreamRecorder.create<CargoDeliveryAck>()
             mockServerService.collectCargoReturned = ackRecorder
 
@@ -177,11 +181,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `collect cargo throws exception if deadline is exceeded`() {
+    fun `collect cargo throws exception if deadline is exceeded`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
             val ackRecorder = StreamRecorder.create<CargoDeliveryAck>()
             mockServerService.collectCargoReturned = ackRecorder
 
@@ -219,11 +223,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `collect cargo throws exception if CCA is refused`() {
+    fun `collect cargo throws exception if CCA is refused`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()
@@ -247,11 +251,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `collect cargo throws CogRPCException if server returns unhandled status error`() {
+    fun `collect cargo throws CogRPCException if server returns unhandled status error`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()
@@ -275,11 +279,11 @@ internal class CogRPCClientTest {
     }
 
     @Test
-    internal fun `collect cargo throws CogRPCException if server returns unhandled error`() {
+    fun `collect cargo throws CogRPCException if server returns unhandled error`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, false)
+            val client = CogRPCClient(ADDRESS, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()

@@ -2,7 +2,6 @@ package tech.relaycorp.relaynet.cogrpc.client
 
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.grpc.okhttp.OkHttpChannelBuilder
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.channels.BroadcastChannel
@@ -31,12 +30,10 @@ import java.util.logging.Level
 import java.util.logging.Logger
 import kotlin.time.seconds
 
-open class CogRPCClient
-internal constructor(
+open class CogRPCClient(
     serverAddress: String,
-    val requireTls: Boolean = true,
-    val channelBuilderProvider: (InetSocketAddress) -> OkHttpChannelBuilder =
-        { OkHttpChannelBuilder.forAddress(it.hostName, it.port) }
+    val channelBuilderProvider: ChannelBuilderProvider<*>,
+    val requireTls: Boolean = true
 ) {
     private val serverUrl = URL(serverAddress)
 
@@ -57,15 +54,11 @@ internal constructor(
     internal val channel by lazy {
         val useTls = requireTls || serverUrl.protocol == "https"
         val isHostPrivateAddress = InetAddress.getByName(serverUrl.host).isSiteLocalAddress
+        val privateSubsetTrustManager =
+            if (useTls && isHostPrivateAddress) PrivateSubnetTrustManager.INSTANCE else null
         channelBuilderProvider
-            .invoke(address)
+            .invoke(address, privateSubsetTrustManager)
             .run { if (useTls) useTransportSecurity() else usePlaintext() }
-            .let {
-                if (useTls && isHostPrivateAddress)
-                    it.overrideAuthority("${address.hostName}:${address.port}")
-                else
-                    it
-            }
             .build()
     }
 
@@ -169,11 +162,6 @@ internal constructor(
         Exception(message, throwable)
 
     class CCARefusedException : CogRPCException()
-
-    object Builder {
-        fun build(serverAddress: String, requireTls: Boolean = true) =
-            CogRPCClient(serverAddress, requireTls)
-    }
 
     companion object {
         internal val logger = Logger.getLogger(CogRPCClient::class.java.name)
