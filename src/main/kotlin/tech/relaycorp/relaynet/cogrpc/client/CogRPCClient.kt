@@ -31,10 +31,10 @@ import java.util.logging.Logger
 import kotlin.time.seconds
 
 open class CogRPCClient
-internal constructor(
+private constructor(
     serverAddress: String,
     val channelBuilderProvider: ChannelBuilderProvider<*>,
-    val requireTls: Boolean = true
+    val requireTls: Boolean
 ) {
     private val serverUrl = URL(serverAddress)
 
