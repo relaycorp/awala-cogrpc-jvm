@@ -15,16 +15,16 @@ import java.net.MalformedURLException
 
 class CogRPCClientBuildTest {
     private lateinit var spiedChannelBuilder: NettyChannelBuilder
-    private var privateSubsetTrustManager: PrivateSubnetTrustManager? = null
+    private var privateSubnetTrustManager: PrivateSubnetTrustManager? = null
     private val channelBuilderProvider: ChannelBuilderProvider<NettyChannelBuilder> = { addr, tm ->
-        privateSubsetTrustManager = tm
+        privateSubnetTrustManager = tm
         spiedChannelBuilder = spy(NettyChannelBuilder.forAddress(addr))
         spiedChannelBuilder
     }
 
     @BeforeEach
     internal fun setUp() {
-        privateSubsetTrustManager = null
+        privateSubnetTrustManager = null
     }
 
     @Test
@@ -95,7 +95,7 @@ class CogRPCClientBuildTest {
 
         assertTrue(spiedClient.channel is ManagedChannel)
         verify(spiedChannelBuilder, never()).usePlaintext()
-        assertNull(privateSubsetTrustManager)
+        assertNull(privateSubnetTrustManager)
     }
 
     @Test
@@ -107,7 +107,7 @@ class CogRPCClientBuildTest {
 
         assertTrue(spiedClient.channel is ManagedChannel)
         verify(spiedChannelBuilder, never()).usePlaintext()
-        assertEquals(PrivateSubnetTrustManager.INSTANCE, privateSubsetTrustManager)
+        assertEquals(PrivateSubnetTrustManager.INSTANCE, privateSubnetTrustManager)
     }
 
     @Test
@@ -118,6 +118,6 @@ class CogRPCClientBuildTest {
 
         assertTrue(spiedClient.channel is ManagedChannel)
         verify(spiedChannelBuilder).usePlaintext()
-        assertNull(privateSubsetTrustManager)
+        assertNull(privateSubnetTrustManager)
     }
 }

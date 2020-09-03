@@ -55,10 +55,10 @@ private constructor(
     internal val channel by lazy {
         val useTls = requireTls || serverUrl.protocol == "https"
         val isHostPrivateAddress = InetAddress.getByName(serverUrl.host).isSiteLocalAddress
-        val privateSubsetTrustManager =
+        val privateSubnetTrustManager =
             if (useTls && isHostPrivateAddress) PrivateSubnetTrustManager.INSTANCE else null
         channelBuilderProvider
-            .invoke(address, privateSubsetTrustManager)
+            .invoke(address, privateSubnetTrustManager)
             .run { if (useTls) useTransportSecurity() else usePlaintext() }
             .build()
     }

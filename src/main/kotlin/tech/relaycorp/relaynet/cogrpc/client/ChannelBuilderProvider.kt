@@ -5,5 +5,5 @@ import java.net.InetSocketAddress
 
 typealias ChannelBuilderProvider<T> = (
     address: InetSocketAddress,
-    privateSubsetTrustManager: PrivateSubnetTrustManager?
+    privateSubnetTrustManager: PrivateSubnetTrustManager?
 ) -> ManagedChannelBuilder<T>
