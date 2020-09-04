@@ -2,11 +2,8 @@ package tech.relaycorp.relaynet.cogrpc.client
 
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
-import io.grpc.netty.GrpcSslContexts
-import io.grpc.netty.NettyChannelBuilder
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -34,11 +31,10 @@ import java.util.logging.Logger
 import kotlin.time.seconds
 
 open class CogRPCClient
-internal constructor(
+private constructor(
     serverAddress: String,
-    val requireTls: Boolean = true,
-    val channelBuilderProvider: (InetSocketAddress) -> NettyChannelBuilder =
-        { NettyChannelBuilder.forAddress(it) }
+    val channelBuilderProvider: ChannelBuilderProvider<*>,
+    val requireTls: Boolean
 ) {
     private val serverUrl = URL(serverAddress)
 
@@ -59,16 +55,11 @@ internal constructor(
     internal val channel by lazy {
         val useTls = requireTls || serverUrl.protocol == "https"
         val isHostPrivateAddress = InetAddress.getByName(serverUrl.host).isSiteLocalAddress
+        val privateSubnetTrustManager =
+            if (useTls && isHostPrivateAddress) PrivateSubnetTrustManager.INSTANCE else null
         channelBuilderProvider
-            .invoke(address)
+            .invoke(address, privateSubnetTrustManager)
             .run { if (useTls) useTransportSecurity() else usePlaintext() }
-            .let { if (useTls && isHostPrivateAddress) it.sslContext(insecureTlsContext) else it }
-            .build()
-    }
-
-    internal val insecureTlsContext by lazy {
-        GrpcSslContexts.forClient()
-            .trustManager(InsecureTrustManagerFactory.INSTANCE)
             .build()
     }
 
@@ -174,8 +165,11 @@ internal constructor(
     class CCARefusedException : CogRPCException()
 
     object Builder {
-        fun build(serverAddress: String, requireTls: Boolean = true) =
-            CogRPCClient(serverAddress, requireTls)
+        fun build(
+            serverAddress: String,
+            channelBuilderProvider: ChannelBuilderProvider<*>,
+            requireTls: Boolean = true
+        ) = CogRPCClient(serverAddress, channelBuilderProvider, requireTls)
     }
 
     companion object {
