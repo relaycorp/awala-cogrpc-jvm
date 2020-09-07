@@ -173,7 +173,7 @@ internal class CogRPCClientTest {
             )
 
             mockServerService.collectCargoReceived?.onCompleted()
-            assertTrue(ackRecorder.awaitCompletion(100, TimeUnit.MILLISECONDS))
+            assertTrue(ackRecorder.awaitCompletion(200, TimeUnit.MILLISECONDS))
 
             client.close()
             testServer?.stop()
