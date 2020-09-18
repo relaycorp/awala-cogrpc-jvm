@@ -174,6 +174,6 @@ private constructor(
 
     companion object {
         internal val logger = Logger.getLogger(CogRPCClient::class.java.name)
-        internal val CALL_DEADLINE = 10.seconds
+        internal val CALL_DEADLINE = 15.seconds
     }
 }
