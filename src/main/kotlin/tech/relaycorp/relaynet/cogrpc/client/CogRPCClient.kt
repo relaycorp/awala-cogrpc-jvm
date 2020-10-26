@@ -81,9 +81,8 @@ private constructor(
             }
 
             override fun onError(t: Throwable) {
-                logger.log(Level.WARNING, "deliverCargo ack error", t)
+                logger.log(Level.WARNING, "Ending deliverCargo due to ack error", t)
                 ackChannel.close(CogRPCException(t))
-                logger.info("deliverCargo complete")
                 deliveryObserver?.onCompleted()
             }
 
@@ -91,8 +90,9 @@ private constructor(
                 logger.info("deliverCargo ack closed")
                 ackChannel.close()
                 if (cargoesToAck.any()) {
-                    logger.info("deliverCargo server did not acknowledge all cargo deliveries")
-                    logger.info("deliverCargo complete")
+                    logger.info(
+                        "Ending deliverCargo but server did not acknowledge all cargo deliveries"
+                    )
                     deliveryObserver?.onCompleted()
                 }
             }
