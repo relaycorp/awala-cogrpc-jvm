@@ -1,1 +1,1 @@
-rootProject.name = "relaynet-cogrpc"
+rootProject.name = "cogrpc"
