@@ -38,7 +38,7 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
   // Relaynet
-  implementation "tech.relaycorp:relaynet:1.36.5"
+  implementation "tech.relaycorp:relaynet:1.38.4"
 
   // Protobuf
   implementation "com.google.protobuf:protobuf-gradle-plugin:$protobufGradleVersion"
@@ -61,7 +61,7 @@ dependencies {
   testImplementation "io.grpc:grpc-netty:$grpcVersion"
   testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.34.Final"
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-  testImplementation "org.mockito:mockito-inline:3.5.13"
+  testImplementation "org.mockito:mockito-inline:3.5.15"
 }
 
 java {

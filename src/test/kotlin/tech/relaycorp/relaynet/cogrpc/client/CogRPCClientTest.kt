@@ -20,6 +20,7 @@ import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.relaynet.CargoDeliveryRequest
 import tech.relaycorp.relaynet.cogrpc.CargoDelivery
 import tech.relaycorp.relaynet.cogrpc.CargoDeliveryAck
+import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient.Companion.logger
 import tech.relaycorp.relaynet.cogrpc.test.MockCogRPCServerService
 import tech.relaycorp.relaynet.cogrpc.test.NoopStreamObserver
 import tech.relaycorp.relaynet.cogrpc.test.TestCogRPCServer
@@ -52,13 +53,15 @@ internal class CogRPCClientTest {
             val cargo = buildRequest()
 
             // Server acks and completes instantaneously
+            var isComplete = false
             mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
+
                 override fun onNext(value: CargoDelivery) {
                     mockServerService.deliverCargoReceived?.onNext(cargo.toCargoDelivery().toAck())
                 }
-
                 override fun onCompleted() {
                     mockServerService.deliverCargoReceived?.onCompleted()
+                    isComplete = true
                 }
             }
 
@@ -68,6 +71,8 @@ internal class CogRPCClientTest {
                 cargo.localId,
                 ackFlow.first()
             )
+
+            waitFor { isComplete }
 
             client.close()
             testServer?.stop()
@@ -96,9 +101,10 @@ internal class CogRPCClientTest {
             val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
             val cargo = buildRequest()
 
-            // Server never acks, just completes
+            // Server never acks, just completes when it gets one cargo
             mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
-                override fun onCompleted() {
+                override fun onNext(value: CargoDelivery) {
+                    logger.info("mockServerService onNext")
                     mockServerService.deliverCargoReceived?.onCompleted()
                 }
             }
@@ -106,6 +112,31 @@ internal class CogRPCClientTest {
             val acks = client.deliverCargo(listOf(cargo)).toList()
             assertTrue(acks.isEmpty())
 
+            client.close()
+            testServer?.stop()
+        }
+    }
+
+    @Test
+    fun `deliver cargo with error`() {
+        runBlocking {
+            val mockServerService = MockCogRPCServerService()
+            buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val cargo = buildRequest()
+
+            // Server never acks, just throws error when cargo is received
+            mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
+                override fun onNext(value: CargoDelivery) {
+                    mockServerService.deliverCargoReceived?.onError(Exception())
+                }
+            }
+
+            assertThrows<CogRPCClient.CogRPCException> {
+                runBlocking {
+                    client.deliverCargo(listOf(cargo)).collect()
+                }
+            }
             client.close()
             testServer?.stop()
         }

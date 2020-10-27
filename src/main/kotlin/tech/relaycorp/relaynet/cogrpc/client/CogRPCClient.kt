@@ -66,6 +66,7 @@ private constructor(
     fun deliverCargo(cargoes: Iterable<CargoDeliveryRequest>): Flow<String> {
         if (cargoes.none()) return emptyFlow()
 
+        var deliveryObserver: StreamObserver<CargoDelivery>? = null
         val cargoesToAck = mutableListOf<String>()
         val ackChannel = BroadcastChannel<String>(1)
         val ackObserver = object : StreamObserver<CargoDeliveryAck> {
@@ -73,32 +74,38 @@ private constructor(
                 logger.info("deliverCargo ack ${value.id}")
                 ackChannel.sendBlocking(value.id)
                 cargoesToAck.remove(value.id)
+                if (cargoesToAck.isEmpty()) {
+                    logger.info("deliverCargo complete")
+                    deliveryObserver?.onCompleted()
+                }
             }
 
             override fun onError(t: Throwable) {
-                logger.log(Level.WARNING, "deliverCargo ack error", t)
+                logger.log(Level.WARNING, "Ending deliverCargo due to ack error", t)
                 ackChannel.close(CogRPCException(t))
+                deliveryObserver?.onCompleted()
             }
 
             override fun onCompleted() {
                 logger.info("deliverCargo ack closed")
                 ackChannel.close()
                 if (cargoesToAck.any()) {
-                    logger.info("deliverCargo server did not acknowledge all cargo deliveries")
+                    logger.info(
+                        "Ending deliverCargo but server did not acknowledge all cargo deliveries"
+                    )
+                    deliveryObserver?.onCompleted()
                 }
             }
         }
 
         val client = buildClient()
-        val deliveryObserver = client.deliverCargo(ackObserver)
+        deliveryObserver = client.deliverCargo(ackObserver)
 
         cargoes.forEach { delivery ->
             logger.info("deliverCargo next ${delivery.localId}")
             cargoesToAck.add(delivery.localId)
             deliveryObserver.onNext(delivery.toCargoDelivery())
         }
-        logger.info("deliverCargo complete")
-        deliveryObserver.onCompleted()
 
         return ackChannel.asFlow()
     }
