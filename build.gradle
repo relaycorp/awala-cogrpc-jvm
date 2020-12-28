@@ -4,7 +4,7 @@ buildscript{
   ext {
     kotlinVersion = '1.4.21'
     kotlinCoroutinesVersion = '1.3.9'
-    grpcVersion = '1.34.0' // See: https://github.com/relaycorp/relaynet-courier-android/issues/231
+    grpcVersion = '1.34.1' // See: https://github.com/relaycorp/relaynet-courier-android/issues/231
     protobufVersion = '3.14.0'
     protobufGradleVersion = '0.8.14'
   }
@@ -38,7 +38,7 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
   // Relaynet
-  implementation "tech.relaycorp:relaynet:1.39.1"
+  implementation "tech.relaycorp:relaynet:1.40.0"
 
   // Protobuf
   implementation "com.google.protobuf:protobuf-gradle-plugin:$protobufGradleVersion"
@@ -59,7 +59,7 @@ dependencies {
   testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
   testImplementation "io.grpc:grpc-testing:$grpcVersion"
   testImplementation "io.grpc:grpc-netty:$grpcVersion"
-  testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.34.Final"
+  testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.35.Final"
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
   testImplementation "org.mockito:mockito-inline:3.6.28"
 }
