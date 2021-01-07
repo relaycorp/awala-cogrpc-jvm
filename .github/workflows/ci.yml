@@ -45,9 +45,34 @@ jobs:
           node-version: 12
       - name: Install Node.js dependencies
         run: npm install
+
+      - name: Generate docs
+        uses: eskatos/gradle-command-action@v1
+        with:
+          arguments: dokkaHtml
+      # Ridiculous workaround for https://github.com/Kotlin/dokka/issues/163
+      - name: Move Dokka's assets into a sensible place
+        run: |
+          set -x -o nounset -o errexit -o pipefail
+          cd ./build/dokka/html
+          mv ./styles ./images ./scripts navigation.html ./cogrpc/
+          find ./cogrpc/ -name '*.html' -print0 | xargs -0 sed -i 's;../styles/;styles/;g'
+          find ./cogrpc/ -name '*.html' -print0 | xargs -0 sed -i 's;../images/;images/;g'
+          find ./cogrpc/ -name '*.html' -print0 | xargs -0 sed -i 's;../scripts/;scripts/;g'
+          find ./cogrpc/ -name '*.html' -print0 | xargs -0 sed -i 's;pathToRoot = "../;pathToRoot = ";g'
+          sed -i 's;href="cogrpc/;href=";g' ./cogrpc/navigation.html
+
       - name: Release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BINTRAY_USERNAME: relaybot
           BINTRAY_KEY: ${{ secrets.BINTRAY_KEY }}
+
+      - name: Publish documentation
+        uses: peaceiris/actions-gh-pages@v3.6.1
+        with:
+          publish_branch: gh-pages
+          publish_dir: ./build/dokka/html/cogrpc
+          allow_empty_commit: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
