@@ -4,7 +4,7 @@ buildscript{
   ext {
     kotlinVersion = '1.4.21-2'
     kotlinCoroutinesVersion = '1.3.9'
-    grpcVersion = '1.34.1' // See: https://github.com/relaycorp/relaynet-courier-android/issues/231
+    grpcVersion = '1.34.1'
     protobufVersion = '3.14.0'
     protobufGradleVersion = '0.8.14'
   }
@@ -13,7 +13,7 @@ buildscript{
 plugins {
   id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
   id('java-library')
-  id("org.jetbrains.dokka") version "0.10.0"
+  id("org.jetbrains.dokka") version "1.4.20"
   id('maven-publish')
   id("com.diffplug.spotless") version "5.8.2"
   id('jacoco')
@@ -106,9 +106,13 @@ sourceSets {
 
 // Documentation
 
-tasks.dokka {
-  outputFormat = "html"
-  outputDirectory = "$buildDir/javadoc"
+dokkaHtml.configure {
+  dokkaSourceSets {
+    configureEach {
+      reportUndocumented.set(true)
+      includes.from("api-docs.md")
+    }
+  }
 }
 
 // Publishing
