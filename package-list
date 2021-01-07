@@ -1,0 +1,6 @@
+$dokka.format:html-v1
+$dokka.linkExtension:html
+
+tech.relaycorp.relaynet.cogrpc
+tech.relaycorp.relaynet.cogrpc.client
+
