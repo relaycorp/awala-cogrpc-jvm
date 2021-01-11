@@ -15,7 +15,7 @@ plugins {
   id('java-library')
   id("org.jetbrains.dokka") version "1.4.20"
   id('maven-publish')
-  id("com.diffplug.spotless") version "5.8.2"
+  id("com.diffplug.spotless") version "5.9.0"
   id('jacoco')
   id("com.google.protobuf") version "$protobufGradleVersion"
   id('idea')
@@ -61,7 +61,7 @@ dependencies {
   testImplementation "io.grpc:grpc-netty:$grpcVersion"
   testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.35.Final"
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-  testImplementation "org.mockito:mockito-inline:3.6.28"
+  testImplementation "org.mockito:mockito-inline:3.7.0"
 }
 
 java {
