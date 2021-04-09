@@ -60,6 +60,7 @@ nexusPublishing {
         }
     }
 }
-tasks.publish {
-    finalizedBy("closeAndReleaseSonatypeStagingRepository")
-}
+// TODO: Reinstate
+//tasks.publish {
+//    finalizedBy("closeAndReleaseSonatypeStagingRepository")
+//}
