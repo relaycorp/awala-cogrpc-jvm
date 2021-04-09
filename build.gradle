@@ -14,11 +14,14 @@ plugins {
   id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
   id('java-library')
   id("org.jetbrains.dokka") version "1.4.30"
-  id('maven-publish')
   id("com.diffplug.spotless") version "5.11.0"
   id('jacoco')
   id("com.google.protobuf") version "$protobufGradleVersion"
   id('idea')
+
+  id('signing')
+  id('maven-publish')
+  id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
 }
 
 apply from: 'jacoco.gradle'
@@ -26,7 +29,7 @@ apply from: 'jacoco.gradle'
 group = "tech.relaycorp"
 
 repositories {
-  jcenter()
+  mavenCentral()
 }
 
 dependencies {
@@ -38,7 +41,7 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
   // Relaynet
-  implementation "tech.relaycorp:relaynet:[1.41.0,2.0.0)"
+  implementation "tech.relaycorp:awala:[1.48.5,2.0.0)"
 
   // Protobuf
   implementation "com.google.protobuf:protobuf-gradle-plugin:$protobufGradleVersion"
@@ -111,53 +114,6 @@ dokkaHtml.configure {
     configureEach {
       reportUndocumented.set(true)
       includes.from("api-docs.md")
-    }
-  }
-}
-
-// Publishing
-
-publishing {
-  publications {
-    create("default", MavenPublication) {
-      from(components["java"])
-
-      pom {
-        name.set(rootProject.name)
-        description.set("Relaynet CogRPC binding")
-        url.set("https://github.com/relaycorp/relaynet-cogrpc-jvm")
-        developers {
-          developer {
-            id.set("relaycorp")
-            name.set("Relaycorp, Inc.")
-            email.set("no-reply@relaycorp.tech")
-          }
-        }
-        licenses {
-          license {
-            name.set("Apache-2.0")
-          }
-        }
-        scm {
-          connection.set("scm:git:https://github.com/relaycorp/relaynet-cogrpc-jvm.git")
-          developerConnection.set(
-            "scm:git:https://github.com/relaycorp/relaynet-cogrpc-jvm.git"
-          )
-          url.set("https://github.com/relaycorp/relaynet-cogrpc-jvm")
-        }
-      }
-    }
-  }
-  repositories {
-    maven {
-      // publish=1 automatically publishes the version
-      url = uri(
-        "https://api.bintray.com/maven/relaycorp/maven/tech.relaycorp.cogrpc/;publish=1"
-      )
-      credentials {
-        username = System.getenv("BINTRAY_USERNAME")
-        password = System.getenv("BINTRAY_KEY")
-      }
     }
   }
 }
