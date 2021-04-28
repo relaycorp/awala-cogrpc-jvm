@@ -1,0 +1,36 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "08:00"
+    timezone: Etc/UCT
+  open-pull-requests-limit: 99
+  ignore:
+  - dependency-name: io.grpc:grpc-*
+    versions:
+    - 1.x
+  - dependency-name: com.diffplug.spotless
+    versions:
+    - 5.10.1
+    - 5.12.0
+    - 5.12.1
+  - dependency-name: io.netty:netty-tcnative-boringssl-static
+    versions:
+    - 2.0.37.Final
+  - dependency-name: com.google.protobuf:protoc
+    versions:
+    - 3.15.0
+    - 3.15.2
+    - 3.15.5
+  - dependency-name: com.google.protobuf:protobuf-java-util
+    versions:
+    - 3.15.0
+    - 3.15.2
+    - 3.15.5
+  - dependency-name: com.google.protobuf:protobuf-java
+    versions:
+    - 3.15.0
+    - 3.15.2
+    - 3.15.5
