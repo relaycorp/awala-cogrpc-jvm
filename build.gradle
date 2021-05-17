@@ -68,7 +68,7 @@ dependencies {
   testImplementation "io.grpc:grpc-netty:$grpcVersion"
   testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.38.Final"
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-  testImplementation "org.mockito:mockito-inline:3.8.0"
+  testImplementation "org.mockito:mockito-inline:3.10.0"
 }
 
 java {
