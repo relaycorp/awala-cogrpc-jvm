@@ -13,6 +13,7 @@ buildscript{
 plugins {
   id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
   id('java-library')
+  id("com.gradle.enterprise") version "3.6.3"
   id("org.jetbrains.dokka") version "1.4.30"
   id("com.diffplug.spotless") version "5.11.1"
   id('jacoco')
