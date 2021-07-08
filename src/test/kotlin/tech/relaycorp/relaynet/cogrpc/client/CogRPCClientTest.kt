@@ -8,12 +8,12 @@ import io.grpc.netty.NettyChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -29,7 +29,6 @@ import tech.relaycorp.relaynet.cogrpc.test.Wait.waitForNotNull
 import tech.relaycorp.relaynet.cogrpc.toAck
 import tech.relaycorp.relaynet.cogrpc.toCargoDelivery
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 
 internal class CogRPCClientTest {
 
@@ -50,7 +49,7 @@ internal class CogRPCClientTest {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
             val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
-            val cargo = buildRequest()
+            val cargo = buildDeliveryRequest()
 
             // Server acks and completes instantaneously
             var isComplete = false
@@ -99,7 +98,7 @@ internal class CogRPCClientTest {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
             val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
-            val cargo = buildRequest()
+            val cargo = buildDeliveryRequest()
 
             // Server never acks, just completes when it gets one cargo
             mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
@@ -123,7 +122,7 @@ internal class CogRPCClientTest {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
             val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
-            val cargo = buildRequest()
+            val cargo = buildDeliveryRequest()
 
             // Server never acks, just throws error when cargo is received
             mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
@@ -148,7 +147,7 @@ internal class CogRPCClientTest {
             val mockServerService = MockCogRPCServerService()
             buildAndStartServer(mockServerService)
             val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
-            val cargo = buildRequest()
+            val cargo = buildDeliveryRequest()
 
             // Server acks and completes instantaneously
             mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
@@ -184,27 +183,27 @@ internal class CogRPCClientTest {
             val ackRecorder = StreamRecorder.create<CargoDeliveryAck>()
             mockServerService.collectCargoReturned = ackRecorder
 
-            // Client call
-            val cca = buildMessageSerialized()
-            val collectFlow = client.collectCargo { cca }
+            // Server sends cargo when client makes call and ends the call when ACK is received
+            val deliveryRequest = buildDeliveryRequest()
+            client.collectCargo { buildMessageSerialized() }
+                .onStart {
+                    launch(Dispatchers.IO) {
+                        mockServerService.addDeliveryToCollectionCall(
+                            deliveryRequest.toCargoDelivery()
+                        )
+                    }
+                }
+                .collect {
+                    launch(Dispatchers.IO) {
+                        waitFor { ackRecorder.values.any() }
+                        mockServerService.endCollectionCall()
+                    }
+                }
 
-            // Server sends cargo
-            val cargo = buildRequest()
-            launch(Dispatchers.IO) {
-                waitForNotNull { mockServerService.collectCargoReceived }
-                    .onNext(cargo.toCargoDelivery())
-            }
-
-            assertNotNull(collectFlow.first())
-
-            waitFor { ackRecorder.values.any() }
             assertEquals(
-                cargo.localId,
+                deliveryRequest.localId,
                 ackRecorder.values.first().id
             )
-
-            mockServerService.collectCargoReceived?.onCompleted()
-            assertTrue(ackRecorder.awaitCompletion(100, TimeUnit.MILLISECONDS))
 
             client.close()
             testServer?.stop()
@@ -225,7 +224,7 @@ internal class CogRPCClientTest {
             val collectFlow = client.collectCargo { cca }
 
             // Server sends cargo with a delay bigger than the deadline
-            val cargo = buildRequest()
+            val cargo = buildDeliveryRequest()
             launch(Dispatchers.IO) {
                 @Suppress("BlockingMethodInNonBlockingContext")
                 Thread.sleep(CogRPCClient.CALL_DEADLINE.inMilliseconds.toLong())
@@ -344,7 +343,7 @@ internal class CogRPCClientTest {
     private fun buildMessageSerialized() =
         "DATA".byteInputStream()
 
-    private fun buildRequest() =
+    private fun buildDeliveryRequest() =
         CargoDeliveryRequest(
             UUID.randomUUID().toString()
         ) { buildMessageSerialized() }
