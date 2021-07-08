@@ -5,6 +5,7 @@ import io.grpc.StatusRuntimeException
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import tech.relaycorp.relaynet.CargoDeliveryRequest
 import tech.relaycorp.relaynet.cogrpc.AuthorizationMetadata
 import tech.relaycorp.relaynet.cogrpc.CargoDelivery
@@ -111,13 +113,13 @@ private constructor(
     }
 
     fun collectCargo(cca: (() -> InputStream)): Flow<InputStream> {
-        val ackChannel = BroadcastChannel<String>(1)
+        val ackChannel = Channel<String>(Channel.UNLIMITED)
         return channelFlow {
             val collectObserver = object : StreamObserver<CargoDelivery> {
                 override fun onNext(value: CargoDelivery) {
                     logger.info("collectCargo ${value.id}")
                     this@channelFlow.sendBlocking(value.cargo.newInput())
-                    ackChannel.sendBlocking(value.id)
+                    ackChannel.trySend(value.id)
                 }
 
                 override fun onError(t: Throwable) {
@@ -141,7 +143,7 @@ private constructor(
             val client = buildAuthorizedClient(cca().readBytesAndClose())
             val ackObserver = client.collectCargo(collectObserver)
             ackChannel
-                .asFlow()
+                .receiveAsFlow()
                 .onEach { ackObserver.onNext(it.toCargoDeliveryAck()) }
                 .onCompletion { ackObserver.onCompleted() }
                 .collect()
