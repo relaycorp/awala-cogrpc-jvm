@@ -14,14 +14,14 @@ plugins {
   id("org.jetbrains.kotlin.jvm") version "$kotlinVersion"
   id('java-library')
   id("org.jetbrains.dokka") version "1.4.30"
-  id("com.diffplug.spotless") version "5.11.1"
+  id("com.diffplug.spotless") version "5.14.1"
   id('jacoco')
   id("com.google.protobuf") version "$protobufGradleVersion"
   id('idea')
 
   id('signing')
   id('maven-publish')
-  id("io.github.gradle-nexus.publish-plugin") version "1.0.0"
+  id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 apply from: 'jacoco.gradle'
@@ -68,7 +68,7 @@ dependencies {
   testImplementation "io.grpc:grpc-netty:$grpcVersion"
   testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.38.Final"
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-  testImplementation "org.mockito:mockito-inline:3.8.0"
+  testImplementation "org.mockito:mockito-inline:3.11.2"
 }
 
 java {
