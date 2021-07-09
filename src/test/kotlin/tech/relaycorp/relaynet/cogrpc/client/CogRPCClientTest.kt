@@ -184,6 +184,7 @@ internal class CogRPCClientTest {
             mockServerService.collectCargoReturned = ackRecorder
 
             // Server sends cargo when client makes call and ends the call when ACK is received
+            var ackReceivedByServer: CargoDeliveryAck? = null
             val deliveryRequest = buildDeliveryRequest()
             client.collectCargo { buildMessageSerialized() }
                 .onStart {
@@ -195,14 +196,14 @@ internal class CogRPCClientTest {
                 }
                 .collect {
                     launch(Dispatchers.IO) {
-                        waitFor { ackRecorder.values.any() }
+                        ackReceivedByServer = waitForNotNull { ackRecorder.values.firstOrNull() }
                         mockServerService.endCollectionCall()
                     }
                 }
 
             assertEquals(
                 deliveryRequest.localId,
-                ackRecorder.values.first().id
+                ackReceivedByServer?.id
             )
 
             client.close()
