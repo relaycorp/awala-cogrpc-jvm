@@ -1,7 +1,7 @@
 rootProject.name = "cogrpc"
 
 plugins {
-    id("com.gradle.enterprise") version "3.6.3"
+    id("com.gradle.enterprise") version "3.7.2"
 }
 
 gradleEnterprise {
