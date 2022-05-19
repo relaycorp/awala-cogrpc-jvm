@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript{
   ext {
-    kotlinVersion = '1.5.20'
+    kotlinVersion = '1.6.20'
     kotlinCoroutinesVersion = '1.5.2'
     grpcVersion = '1.39.0'
     protobufVersion = '3.20.0'
@@ -66,9 +66,9 @@ dependencies {
   testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinCoroutinesVersion"
   testImplementation "io.grpc:grpc-testing:$grpcVersion"
   testImplementation "io.grpc:grpc-netty:$grpcVersion"
-  testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.40.Final"
+  testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.52.Final"
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-  testImplementation "org.mockito:mockito-inline:4.2.0"
+  testImplementation "org.mockito:mockito-inline:4.5.1"
 }
 
 java {
