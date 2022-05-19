@@ -4,7 +4,7 @@ buildscript{
   ext {
     kotlinVersion = '1.6.20'
     kotlinCoroutinesVersion = '1.5.2'
-    grpcVersion = '1.39.0'
+    grpcVersion = '1.46.0'
     protobufVersion = '3.20.0'
     protobufGradleVersion = '0.8.18'
   }
