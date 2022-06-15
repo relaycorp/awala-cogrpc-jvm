@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript{
   ext {
-    kotlinVersion = '1.6.21'
+    kotlinVersion = '1.7.0'
     kotlinCoroutinesVersion = '1.6.2'
     grpcVersion = '1.47.0'
     protobufVersion = '3.21.1'
