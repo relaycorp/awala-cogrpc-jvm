@@ -3,9 +3,9 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 buildscript{
   ext {
     kotlinVersion = '1.6.21'
-    kotlinCoroutinesVersion = '1.5.2'
+    kotlinCoroutinesVersion = '1.6.2'
     grpcVersion = '1.47.0'
-    protobufVersion = '3.20.1'
+    protobufVersion = '3.21.1'
     protobufGradleVersion = '0.8.18'
   }
 }
@@ -45,7 +45,7 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
   // Relaynet
-  implementation "tech.relaycorp:awala:[1.65.0,2.0.0)"
+  implementation "tech.relaycorp:awala:[1.65.2,2.0.0)"
 
   // Protobuf
   implementation "com.google.protobuf:protobuf-gradle-plugin:$protobufGradleVersion"

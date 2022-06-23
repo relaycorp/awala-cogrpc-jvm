@@ -6,7 +6,7 @@ import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
 import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
@@ -74,7 +74,7 @@ private constructor(
         val ackObserver = object : StreamObserver<CargoDeliveryAck> {
             override fun onNext(value: CargoDeliveryAck) {
                 logger.info("deliverCargo ack ${value.id}")
-                ackChannel.sendBlocking(value.id)
+                ackChannel.trySendBlocking(value.id)
                 cargoesToAck.remove(value.id)
                 if (cargoesToAck.isEmpty()) {
                     logger.info("deliverCargo complete")
@@ -118,7 +118,7 @@ private constructor(
             val collectObserver = object : StreamObserver<CargoDelivery> {
                 override fun onNext(value: CargoDelivery) {
                     logger.info("collectCargo ${value.id}")
-                    this@channelFlow.sendBlocking(value.cargo.newInput())
+                    this@channelFlow.trySendBlocking(value.cargo.newInput())
                     ackChannel.trySend(value.id)
                 }
 
