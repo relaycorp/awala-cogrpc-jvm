@@ -44,8 +44,13 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
+  // Protobuf
+  implementation "com.google.protobuf:protobuf-gradle-plugin:$protobufGradleVersion"
+  implementation "com.google.protobuf:protobuf-java:$protobufVersion"
+  implementation "com.google.protobuf:protobuf-java-util:$protobufVersion"
+
   // Relaynet
-  implementation "tech.relaycorp:awala:[1.65.2,2.0.0)"
+  implementation "tech.relaycorp:awala:[1.65.3,2.0.0)"
 
   // gRPC
   implementation "io.grpc:grpc-protobuf:$grpcVersion"
