@@ -153,7 +153,7 @@ internal class CogRPCClientTest {
             mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
                 override fun onNext(value: CargoDelivery) {
                     @Suppress("BlockingMethodInNonBlockingContext")
-                    Thread.sleep(CogRPCClient.CALL_DEADLINE.inMilliseconds.toLong())
+                    Thread.sleep(CogRPCClient.CALL_DEADLINE.inWholeMilliseconds)
                     mockServerService.deliverCargoReceived?.onNext(cargo.toCargoDelivery().toAck())
                 }
             }
@@ -228,7 +228,7 @@ internal class CogRPCClientTest {
             val cargo = buildDeliveryRequest()
             launch(Dispatchers.IO) {
                 @Suppress("BlockingMethodInNonBlockingContext")
-                Thread.sleep(CogRPCClient.CALL_DEADLINE.inMilliseconds.toLong())
+                Thread.sleep(CogRPCClient.CALL_DEADLINE.inWholeMilliseconds)
                 try {
                     waitForNotNull { mockServerService.collectCargoReceived }
                         .onNext(cargo.toCargoDelivery())
