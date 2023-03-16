@@ -1,7 +1,7 @@
 package tech.relaycorp.relaynet.cogrpc.test
 
-import kotlin.time.milliseconds
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 object Wait {
 
@@ -10,7 +10,7 @@ object Wait {
         val startTime = currentTimeDuration()
         while (!value) {
             try {
-                Thread.sleep(CHECK_INTERVAL.toLongMilliseconds())
+                Thread.sleep(CHECK_INTERVAL.inWholeMilliseconds)
             } catch (e: InterruptedException) {
                 throw RuntimeException(e)
             }

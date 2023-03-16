@@ -30,7 +30,7 @@ import java.net.URL
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
-import kotlin.time.seconds
+import kotlin.time.Duration.Companion.seconds
 
 open class CogRPCClient
 private constructor(
@@ -152,12 +152,12 @@ private constructor(
 
     fun close() {
         logger.info("Closing CogRPCClient")
-        channel.shutdown().awaitTermination(CALL_DEADLINE.inSeconds.toLong(), TimeUnit.SECONDS)
+        channel.shutdown().awaitTermination(CALL_DEADLINE.inWholeSeconds, TimeUnit.SECONDS)
     }
 
     private fun buildClient() =
         CargoRelayGrpc.newStub(channel)
-            .withDeadlineAfter(CALL_DEADLINE.inSeconds.toLong(), TimeUnit.SECONDS)
+            .withDeadlineAfter(CALL_DEADLINE.inWholeSeconds, TimeUnit.SECONDS)
 
     private fun buildAuthorizedClient(cca: ByteArray) =
         MetadataUtils.attachHeaders(
