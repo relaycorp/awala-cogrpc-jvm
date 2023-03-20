@@ -22,7 +22,7 @@ $dokka.location:tech.relaycorp.relaynet.cogrpc.client/PrivateSubnetTrustManager/
 $dokka.location:tech.relaycorp.relaynet.cogrpc.client/PrivateSubnetTrustManager/getAcceptedIssuers/#/PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc.client/-private-subnet-trust-manager/get-accepted-issuers.html
 $dokka.location:tech.relaycorp.relaynet.cogrpc////PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc/index.html
 $dokka.location:tech.relaycorp.relaynet.cogrpc//readBytesAndClose/java.io.InputStream#/PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc/read-bytes-and-close.html
-$dokka.location:tech.relaycorp.relaynet.cogrpc//toAck/CargoDelivery#/PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc/to-ack.html
+$dokka.location:tech.relaycorp.relaynet.cogrpc//toAck/tech.relaycorp.relaynet.cogrpc.CargoDelivery#/PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc/to-ack.html
 $dokka.location:tech.relaycorp.relaynet.cogrpc//toCargoDelivery/tech.relaycorp.relaynet.CargoDeliveryRequest#/PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc/to-cargo-delivery.html
 $dokka.location:tech.relaycorp.relaynet.cogrpc//toCargoDeliveryAck/kotlin.String#/PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc/to-cargo-delivery-ack.html
 $dokka.location:tech.relaycorp.relaynet.cogrpc/AuthorizationMetadata///PointingToDeclaration/cogrpc/tech.relaycorp.relaynet.cogrpc/-authorization-metadata/index.html
