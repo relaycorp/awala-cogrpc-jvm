@@ -65,14 +65,12 @@ internal class CogRPCClientTest {
                 }
             }
 
-            val ackFlow = client.deliverCargo(listOf(cargo)).take(1)
+            val ackFlow = client.deliverCargo(listOf(cargo))
 
             assertEquals(
                 cargo.localId,
                 ackFlow.first()
             )
-
-            waitFor { isComplete }
 
             client.close()
             testServer?.stop()

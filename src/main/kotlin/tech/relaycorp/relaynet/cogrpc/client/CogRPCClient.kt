@@ -67,7 +67,6 @@ private constructor(
 
     fun deliverCargo(cargoes: Iterable<CargoDeliveryRequest>): Flow<String> {
         if (cargoes.none()) return emptyFlow()
-
         var deliveryObserver: StreamObserver<CargoDelivery>? = null
         val cargoesToAck = mutableListOf<String>()
         val ackChannel = BroadcastChannel<String>(1)
@@ -84,6 +83,7 @@ private constructor(
 
             override fun onError(t: Throwable) {
                 logger.log(Level.WARNING, "Ending deliverCargo due to ack error", t)
+                println("\"Ending deliverCargo due to ack error\", ${t.stackTrace}")
                 ackChannel.close(CogRPCException(t))
                 deliveryObserver?.onCompleted()
             }
