@@ -9,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -25,7 +24,6 @@ import tech.relaycorp.relaynet.cogrpc.client.CogRPCClient.Companion.logger
 import tech.relaycorp.relaynet.cogrpc.test.MockCogRPCServerService
 import tech.relaycorp.relaynet.cogrpc.test.NoopStreamObserver
 import tech.relaycorp.relaynet.cogrpc.test.TestCogRPCServer
-import tech.relaycorp.relaynet.cogrpc.test.Wait.waitFor
 import tech.relaycorp.relaynet.cogrpc.test.Wait.waitForNotNull
 import tech.relaycorp.relaynet.cogrpc.toAck
 import tech.relaycorp.relaynet.cogrpc.toCargoDelivery
@@ -65,14 +63,12 @@ internal class CogRPCClientTest {
                 }
             }
 
-            val ackFlow = client.deliverCargo(listOf(cargo)).take(1)
+            val ackFlow = client.deliverCargo(listOf(cargo))
 
             assertEquals(
                 cargo.localId,
                 ackFlow.first()
             )
-
-            waitFor { isComplete }
 
             client.close()
             testServer?.stop()
