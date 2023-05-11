@@ -83,13 +83,11 @@ private constructor(
 
             override fun onError(t: Throwable) {
                 logger.log(Level.WARNING, "Ending deliverCargo due to ack error", t)
-                println("\"Ending deliverCargo due to ack error\", ${t.stackTrace}")
                 ackChannel.close(CogRPCException(t))
                 deliveryObserver?.onCompleted()
             }
 
             override fun onCompleted() {
-                logger.info("deliverCargo ack closed")
                 ackChannel.close()
                 if (cargoesToAck.any()) {
                     println(

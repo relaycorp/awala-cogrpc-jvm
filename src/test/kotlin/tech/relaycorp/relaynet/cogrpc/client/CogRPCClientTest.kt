@@ -63,11 +63,13 @@ internal class CogRPCClientTest {
                 }
             }
 
-            val ackFlow = client.deliverCargo(listOf(cargo))
+            logger.info("client.deliverCargo called")
+            val ackFlow = client.deliverCargo(listOf(cargo)).first()
+            logger.info("client.deliverCargo completed")
 
             assertEquals(
                 cargo.localId,
-                ackFlow.first()
+                ackFlow
             )
 
             client.close()
