@@ -92,7 +92,9 @@ private constructor(
                 logger.info("deliverCargo ack closed")
                 ackChannel.close()
                 if (cargoesToAck.any()) {
-                    println("Ending deliverCargo but server did not acknowledge all cargo deliveries")
+                    println(
+                        "Ending deliverCargo but server did not acknowledge all cargo deliveries"
+                    )
 
                     logger.info(
                         "Ending deliverCargo but server did not acknowledge all cargo deliveries"
