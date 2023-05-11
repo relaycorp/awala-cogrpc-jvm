@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -64,13 +65,14 @@ internal class CogRPCClientTest {
                 }
             }
 
-            val ackFlow = client.deliverCargo(listOf(cargo)).first()
-            waitFor { isComplete }
+            val ackFlow = client.deliverCargo(listOf(cargo)).take(1)
 
             assertEquals(
                 cargo.localId,
-                ackFlow
+                ackFlow.first()
             )
+
+            waitFor { isComplete }
 
             client.close()
             testServer?.stop()
