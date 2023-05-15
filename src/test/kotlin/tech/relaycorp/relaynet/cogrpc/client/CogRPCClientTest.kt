@@ -1,5 +1,6 @@
 package tech.relaycorp.relaynet.cogrpc.client
 
+import app.cash.turbine.test
 import io.grpc.BindableService
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -7,7 +8,6 @@ import io.grpc.internal.testing.StreamRecorder
 import io.grpc.netty.NettyChannelBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -51,7 +51,6 @@ internal class CogRPCClientTest {
             val cargo = buildDeliveryRequest()
 
             // Server acks and completes instantaneously
-            var isComplete = false
             mockServerService.deliverCargoReturned = object : NoopStreamObserver<CargoDelivery>() {
 
                 override fun onNext(value: CargoDelivery) {
@@ -59,18 +58,16 @@ internal class CogRPCClientTest {
                 }
                 override fun onCompleted() {
                     mockServerService.deliverCargoReceived?.onCompleted()
-                    isComplete = true
                 }
             }
 
-            logger.info("client.deliverCargo called")
-            val ackFlow = client.deliverCargo(listOf(cargo)).first()
-            logger.info("client.deliverCargo completed")
-
-            assertEquals(
-                cargo.localId,
-                ackFlow
-            )
+            client.deliverCargo(listOf(cargo)).test {
+                assertEquals(
+                    cargo.localId,
+                    awaitItem()
+                )
+                awaitComplete()
+            }
 
             client.close()
             testServer?.stop()
