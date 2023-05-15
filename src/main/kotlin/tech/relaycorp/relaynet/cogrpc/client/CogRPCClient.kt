@@ -4,8 +4,8 @@ import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -83,13 +83,13 @@ private constructor(
 
             override fun onError(t: Throwable) {
                 logger.log(Level.WARNING, "Ending deliverCargo due to ack error", t)
-                close(CogRPCException(t))
+                this@channelFlow.close(CogRPCException(t))
                 deliveryObserver?.onCompleted()
             }
 
             override fun onCompleted() {
                 logger.info("deliverCargo ack closed")
-                close()
+                this@channelFlow.close()
                 if (cargoesToAck.any()) {
                     logger.info(
                         "Ending deliverCargo but server did not acknowledge all cargo deliveries"
@@ -108,7 +108,7 @@ private constructor(
             deliveryObserver.onNext(delivery.toCargoDelivery())
         }
 
-        awaitCancellation()
+        this@channelFlow.awaitClose()
     }
 
     fun collectCargo(cca: (() -> InputStream)): Flow<InputStream> {
