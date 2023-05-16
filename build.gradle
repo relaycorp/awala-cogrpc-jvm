@@ -69,6 +69,7 @@ dependencies {
   testImplementation "io.netty:netty-tcnative-boringssl-static:2.0.53.Final"
   testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
   testImplementation "org.mockito:mockito-inline:4.6.1"
+  testImplementation "app.cash.turbine:turbine:0.13.0"
 }
 
 java {

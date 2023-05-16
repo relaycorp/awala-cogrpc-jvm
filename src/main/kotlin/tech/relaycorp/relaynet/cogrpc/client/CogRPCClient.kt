@@ -4,14 +4,12 @@ import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import io.grpc.stub.MetadataUtils
 import io.grpc.stub.StreamObserver
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -65,16 +63,17 @@ private constructor(
             .build()
     }
 
-    fun deliverCargo(cargoes: Iterable<CargoDeliveryRequest>): Flow<String> {
-        if (cargoes.none()) return emptyFlow()
-
+    fun deliverCargo(cargoes: Iterable<CargoDeliveryRequest>) = channelFlow<String> {
+        if (cargoes.none()) {
+            close()
+            return@channelFlow
+        }
         var deliveryObserver: StreamObserver<CargoDelivery>? = null
         val cargoesToAck = mutableListOf<String>()
-        val ackChannel = BroadcastChannel<String>(1)
         val ackObserver = object : StreamObserver<CargoDeliveryAck> {
             override fun onNext(value: CargoDeliveryAck) {
                 logger.info("deliverCargo ack ${value.id}")
-                ackChannel.trySendBlocking(value.id)
+                this@channelFlow.trySendBlocking(value.id)
                 cargoesToAck.remove(value.id)
                 if (cargoesToAck.isEmpty()) {
                     logger.info("deliverCargo complete")
@@ -84,13 +83,13 @@ private constructor(
 
             override fun onError(t: Throwable) {
                 logger.log(Level.WARNING, "Ending deliverCargo due to ack error", t)
-                ackChannel.close(CogRPCException(t))
+                this@channelFlow.close(CogRPCException(t))
                 deliveryObserver?.onCompleted()
             }
 
             override fun onCompleted() {
                 logger.info("deliverCargo ack closed")
-                ackChannel.close()
+                this@channelFlow.close()
                 if (cargoesToAck.any()) {
                     logger.info(
                         "Ending deliverCargo but server did not acknowledge all cargo deliveries"
@@ -109,7 +108,7 @@ private constructor(
             deliveryObserver.onNext(delivery.toCargoDelivery())
         }
 
-        return ackChannel.asFlow()
+        this@channelFlow.awaitClose()
     }
 
     fun collectCargo(cca: (() -> InputStream)): Flow<InputStream> {
