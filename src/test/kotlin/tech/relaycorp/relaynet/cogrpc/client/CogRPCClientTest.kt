@@ -16,6 +16,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import tech.relaycorp.relaynet.CargoDeliveryRequest
 import tech.relaycorp.relaynet.cogrpc.CargoDelivery
@@ -29,6 +30,7 @@ import tech.relaycorp.relaynet.cogrpc.toAck
 import tech.relaycorp.relaynet.cogrpc.toCargoDelivery
 import java.util.UUID
 
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 internal class CogRPCClientTest {
 
     private var testServer: TestCogRPCServer? = null
