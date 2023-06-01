@@ -28,6 +28,7 @@ import tech.relaycorp.relaynet.cogrpc.test.Wait.waitForNotNull
 import tech.relaycorp.relaynet.cogrpc.toAck
 import tech.relaycorp.relaynet.cogrpc.toCargoDelivery
 import java.util.UUID
+import kotlin.random.Random
 
 internal class CogRPCClientTest {
 
@@ -46,8 +47,8 @@ internal class CogRPCClientTest {
     fun `deliver cargo and receive ack`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
             val cargo = buildDeliveryRequest()
 
             // Server acks and completes instantaneously
@@ -78,8 +79,8 @@ internal class CogRPCClientTest {
     fun `deliver no cargo`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
             val acks = client.deliverCargo(emptyList()).toList()
 
             assertTrue(acks.isEmpty())
@@ -92,8 +93,8 @@ internal class CogRPCClientTest {
     fun `deliver cargo without ack`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
             val cargo = buildDeliveryRequest()
 
             // Server never acks, just completes when it gets one cargo
@@ -116,8 +117,8 @@ internal class CogRPCClientTest {
     fun `deliver cargo with error`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
             val cargo = buildDeliveryRequest()
 
             // Server never acks, just throws error when cargo is received
@@ -141,8 +142,8 @@ internal class CogRPCClientTest {
     fun `deliver cargo throws exception if deadline is exceeded`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
             val cargo = buildDeliveryRequest()
 
             // Server acks and completes instantaneously
@@ -174,8 +175,8 @@ internal class CogRPCClientTest {
     fun `collect cargo, ack and complete`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
             val ackRecorder = StreamRecorder.create<CargoDeliveryAck>()
             mockServerService.collectCargoReturned = ackRecorder
 
@@ -211,8 +212,8 @@ internal class CogRPCClientTest {
     fun `collect cargo throws exception if deadline is exceeded`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
             val ackRecorder = StreamRecorder.create<CargoDeliveryAck>()
             mockServerService.collectCargoReturned = ackRecorder
 
@@ -253,8 +254,8 @@ internal class CogRPCClientTest {
     fun `collect cargo throws exception if CCA is refused`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()
@@ -281,8 +282,8 @@ internal class CogRPCClientTest {
     fun `collect cargo throws CogRPCException if server returns unhandled status error`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()
@@ -309,8 +310,8 @@ internal class CogRPCClientTest {
     fun `collect cargo throws CogRPCException if server returns unhandled error`() {
         runBlocking {
             val mockServerService = MockCogRPCServerService()
-            buildAndStartServer(mockServerService)
-            val client = CogRPCClient.Builder.build(ADDRESS, channelBuilderProvider, false)
+            val address = buildAndStartServer(mockServerService)
+            val client = CogRPCClient.Builder.build(address, channelBuilderProvider, false)
 
             // Client call
             val cca = buildMessageSerialized()
@@ -333,8 +334,10 @@ internal class CogRPCClientTest {
         }
     }
 
-    private fun buildAndStartServer(service: BindableService) {
-        testServer = TestCogRPCServer(HOST, PORT, service).apply { start() }
+    private fun buildAndStartServer(service: BindableService): String {
+        val port = Random.nextInt(8000, 19999) // Avoid server overlap in parallel tests
+        testServer = TestCogRPCServer(HOST, port, service).apply { start() }
+        return "http://$HOST:$port"
     }
 
     private fun buildMessageSerialized() =
@@ -347,7 +350,5 @@ internal class CogRPCClientTest {
 
     companion object {
         private const val HOST = "localhost"
-        private const val PORT = 8080
-        private const val ADDRESS = "http://$HOST:$PORT"
     }
 }
