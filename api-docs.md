@@ -4,7 +4,7 @@ This is the JVM implementation of the [Relaynet CogRPC binding](https://specs.re
 
 ## Install
 
-This package can be retrieved from [JCenter](https://bintray.com/relaycorp/maven/tech.relaycorp.cogrpc). For example, using the Gradle Groovy DSL:
+This package can be retrieved from [Maven Central](https://central.sonatype.com/artifact/tech.relaycorp/cogrpc). For example, using the Gradle Groovy DSL:
 
 ```
 implementation 'tech.relaycorp:cogrpc:1.1.6'

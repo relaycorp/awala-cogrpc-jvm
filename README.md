@@ -2,7 +2,7 @@
 
 Kotlin JVM library implementing the [Relaynet CogRPC binding](https://specs.relaynet.link/RS-008), meant to be used on Android 5+ and Java 8+ platforms.
 
-[Read the documentation online](https://docs.relaycorp.tech/relaynet-cogrpc-jvm/) or [get the latest version from JCenter](https://bintray.com/relaycorp/maven/tech.relaycorp.cogrpc).
+[Read the documentation online](https://docs.relaycorp.tech/relaynet-cogrpc-jvm/) or [get the latest version from Maven Central](https://central.sonatype.com/artifact/tech.relaycorp/cogrpc).
 
 ## Development
 
