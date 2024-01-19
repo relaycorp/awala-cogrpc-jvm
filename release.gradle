@@ -14,7 +14,7 @@ publishing {
 
             pom {
                 name.set(rootProject.name)
-                description.set("DNS-over-HTTPS library")
+                description.set("Awala CogRPC Binding for the JVM")
                 url.set("https://github.com/relaycorp/awala-cogrpc-jvm")
                 developers {
                     developer {
