@@ -159,9 +159,10 @@ private constructor(
             .withDeadlineAfter(CALL_DEADLINE.inWholeSeconds, TimeUnit.SECONDS)
 
     private fun buildAuthorizedClient(cca: ByteArray) =
-        MetadataUtils.attachHeaders(
-            buildClient(),
-            AuthorizationMetadata.makeMetadata(cca)
+        buildClient().withInterceptors(
+            MetadataUtils.newAttachHeadersInterceptor(
+                AuthorizationMetadata.makeMetadata(cca)
+            )
         )
 
     private fun Throwable.isStatusPermissionDenied() =
